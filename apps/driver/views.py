@@ -127,3 +127,55 @@ def update_location(request, booking_id):
         return JsonResponse({'success': True})
     from django.http import JsonResponse
     return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
+@driver_required
+def mark_as_picked_up(request, booking_id):
+    booking = get_object_or_404(Booking, booking_id=booking_id, driver=request.user)
+    booking.status = 'picked_up'
+    booking.save()
+    
+    TrackingUpdate.objects.create(
+        booking=booking,
+        status_message="Package Picked Up",
+        updated_by=request.user
+    )
+    
+    messages.success(request, f"Order {booking_id} marked as Picked Up!")
+    return redirect('driver_new_booking')
+
+
+@driver_required
+def mark_drop_delivered(request, drop_id):
+    from apps.bookings.models import DropLocation
+    drop = get_object_or_404(DropLocation, id=drop_id, booking__driver=request.user)
+    drop.status = 'delivered'
+    drop.delivered_at = timezone.now()
+    drop.save()
+    
+    # Check if all drops are delivered
+    all_drops = drop.booking.drop_locations.all()
+    if all(d.status == 'delivered' for d in all_drops):
+        drop.booking.status = 'delivered'
+        drop.booking.actual_delivery = timezone.now()
+        drop.booking.save()
+        
+        # Add to earnings (Mockup logic: add total price to earnings)
+        from apps.payments.models import Earnings
+        Earnings.objects.create(
+            driver=request.user,
+            date=timezone.now().date(),
+            amount=drop.booking.total_price,
+            booking=drop.booking
+        )
+        messages.success(request, f"All drops completed! Earnings added.")
+    else:
+        messages.success(request, f"Drop for {drop.recipient_name} marked as delivered!")
+        
+    TrackingUpdate.objects.create(
+        booking=drop.booking,
+        status_message=f"Delivered to {drop.recipient_name}",
+        updated_by=request.user
+    )
+    
+    return redirect('driver_new_booking')

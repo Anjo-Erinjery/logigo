@@ -10,4 +10,6 @@ urlpatterns = [
     path('history/',                views.booking_history,     name='driver_booking_history'),
     path('profile/',                views.driver_profile,      name='driver_profile'),
     path('update-location/<str:booking_id>/', views.update_location, name='driver_update_location'),
+    path('mark-picked-up/<str:booking_id>/', views.mark_as_picked_up, name='mark_as_picked_up'),
+    path('mark-drop-delivered/<int:drop_id>/', views.mark_drop_delivered, name='mark_drop_delivered'),
 ]

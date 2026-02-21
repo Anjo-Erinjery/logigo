@@ -23,8 +23,9 @@
                     <div class="alert alert-danger py-2 small">
                         <ul class="mb-0">
                             {% for field in form %}
-                            {% for error in field.errors %}<li><strong>{{ field.label }}:</strong> {{ error }}</li>{%
-                            endfor %}
+                            {% for error in field.errors %}
+                            <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                            {% endfor %}
                             {% endfor %}
                             {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
                         </ul>
@@ -199,9 +200,9 @@
                     console.log(`Submit: Geocoding drop ${i}...`);
                     const d = await window.autocompleteApiInstance.geocodeAddress(addrEl.value);
                     if (d) {
-                        latEl.value = d.lat;
+                        latEl.value = d.lat.toFixed(7);
                         const lngEl = document.getElementById(`drop_lng_${i}`);
-                        if (lngEl) lngEl.value = d.lng;
+                        if (lngEl) lngEl.value = d.lng.toFixed(7);
                     }
                 }
             }
@@ -270,14 +271,14 @@
             pickupMarker = L.marker([lat, lng], { title: 'Pickup', draggable: true }).addTo(map).bindPopup('Pickup Location').openPopup();
             pickupMarker.on('dragend', function (e) {
                 const pos = pickupMarker.getLatLng();
-                document.querySelector('[name=pickup_lat]').value = pos.lat;
-                document.querySelector('[name=pickup_lng]').value = pos.lng;
+                document.querySelector('[name=pickup_lat]').value = pos.lat.toFixed(6);
+                document.querySelector('[name=pickup_lng]').value = pos.lng.toFixed(6);
             });
         } else {
             pickupMarker.setLatLng([lat, lng]);
         }
-        document.querySelector('[name=pickup_lat]').value = lat;
-        document.querySelector('[name=pickup_lng]').value = lng;
+        document.querySelector('[name=pickup_lat]').value = parseFloat(lat).toFixed(6);
+        document.querySelector('[name=pickup_lng]').value = parseFloat(lng).toFixed(6);
         if (moveMap) map.setView([lat, lng], 14);
     }
 
@@ -326,8 +327,8 @@
                     // Update hidden fields directly
                     const latEl = document.getElementById(`drop_lat_${dropIdx}`);
                     const lngEl = document.getElementById(`drop_lng_${dropIdx}`);
-                    if (latEl) latEl.value = lat;
-                    if (lngEl) lngEl.value = lng;
+                    if (latEl) latEl.value = parseFloat(lat).toFixed(6);
+                    if (lngEl) lngEl.value = parseFloat(lng).toFixed(6);
 
                     // Plot on map
                     const m = L.marker([lat, lng]).addTo(map).bindPopup(`Drop: ${name}`).openPopup();
@@ -347,9 +348,9 @@
                         console.log(`Auto-geocoding drop ${dropIdx} on blur...`);
                         window.autocompleteApiInstance.geocodeAddress(el.value).then(details => {
                             if (details) {
-                                if (latEl) latEl.value = details.lat;
+                                if (latEl) latEl.value = details.lat.toFixed(6);
                                 const lngEl = document.getElementById(`drop_lng_${dropIdx}`);
-                                if (lngEl) lngEl.value = details.lng;
+                                if (lngEl) lngEl.value = details.lng.toFixed(6);
                                 const m = L.marker([details.lat, details.lng]).addTo(map).bindPopup(`Drop: ${el.value}`).openPopup();
                                 dropMarkers.push(m);
                             } else {
@@ -380,8 +381,8 @@
             } else {
                 const latEl = document.getElementById(`drop_lat_${type}`);
                 const lngEl = document.getElementById(`drop_lng_${type}`);
-                if (latEl) latEl.value = lat;
-                if (lngEl) lngEl.value = lon;
+                if (latEl) latEl.value = lat.toFixed(6);
+                if (lngEl) lngEl.value = lon.toFixed(6);
                 const m = L.marker([lat, lon]).addTo(map).bindPopup(`Drop: ${name}`).openPopup();
                 dropMarkers.push(m);
                 map.setView([lat, lon], 14);

@@ -52,8 +52,8 @@ if (typeof PlaceAutocomplete === 'undefined') {
                 const data = await response.json();
                 if (data && data.location) {
                     return {
-                        lat: data.location.latitude,
-                        lng: data.location.longitude,
+                        lat: parseFloat(data.location.latitude.toFixed(6)),
+                        lng: parseFloat(data.location.longitude.toFixed(6)),
                         address: data.formattedAddress
                     };
                 }

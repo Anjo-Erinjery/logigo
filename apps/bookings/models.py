@@ -29,8 +29,8 @@ class Booking(models.Model):
     driver           = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
                                          null=True, blank=True, related_name='driver_bookings')
     pickup_address   = models.TextField()
-    pickup_lat       = models.DecimalField(max_digits=10, decimal_places=7, default=0)
-    pickup_lng       = models.DecimalField(max_digits=10, decimal_places=7, default=0)
+    pickup_lat       = models.DecimalField(max_digits=12, decimal_places=7, default=0)
+    pickup_lng       = models.DecimalField(max_digits=12, decimal_places=7, default=0)
     item_description = models.TextField(blank=True)
     item_weight      = models.DecimalField(max_digits=6, decimal_places=2, default=0)
     package_type     = models.CharField(max_length=10, choices=PACKAGE_CHOICES, default='parcel')
@@ -62,8 +62,8 @@ class DropLocation(models.Model):
     recipient_name = models.CharField(max_length=100)
     recipient_phone= models.CharField(max_length=15)
     address        = models.TextField()
-    lat            = models.DecimalField(max_digits=10, decimal_places=7, default=0)
-    lng            = models.DecimalField(max_digits=10, decimal_places=7, default=0)
+    lat            = models.DecimalField(max_digits=12, decimal_places=7, default=0)
+    lng            = models.DecimalField(max_digits=12, decimal_places=7, default=0)
     status         = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     delivered_at   = models.DateTimeField(null=True, blank=True)
 
@@ -76,8 +76,8 @@ class DropLocation(models.Model):
 
 class TrackingUpdate(models.Model):
     booking        = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='tracking_updates')
-    lat            = models.DecimalField(max_digits=10, decimal_places=7, default=0)
-    lng            = models.DecimalField(max_digits=10, decimal_places=7, default=0)
+    lat            = models.DecimalField(max_digits=12, decimal_places=7, default=0)
+    lng            = models.DecimalField(max_digits=12, decimal_places=7, default=0)
     status_message = models.CharField(max_length=255)
     updated_by     = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     timestamp      = models.DateTimeField(auto_now_add=True)

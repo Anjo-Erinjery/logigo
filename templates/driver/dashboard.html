@@ -1,0 +1,149 @@
+{% extends "base/base.html" %}
+{% block title %}Driver Dashboard — Deliver{% endblock %}
+{% block navbar %}{% include "base/sidebar_driver.html" %}{% endblock %}
+{% block content %}
+<div class="topbar">
+    <span class="topbar-title"><i class="fa fa-tachometer-alt me-2" style="color:var(--primary-light)"></i>Driver
+        Dashboard</span>
+    <div class="topbar-user">
+        {% if profile.is_available %}
+        <span class="badge bg-success rounded-pill">🟢 Online</span>
+        {% else %}
+        <span class="badge bg-danger rounded-pill">🔴 Offline</span>
+        {% endif %}
+        <div class="avatar-sm ms-2">{{ request.user.first_name|first }}</div>
+        <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-danger ms-2"><i class="fa fa-sign-out-alt"></i></a>
+    </div>
+</div>
+<div class="container-fluid py-4">
+    {% if not profile.is_documents_verified %}
+    <div class="alert"
+        style="background:rgba(245,158,11,.1);border:1px solid var(--accent);border-radius:12px;color:var(--accent)"
+        role="alert">
+        <i class="fa fa-exclamation-circle me-2"></i>
+        Your documents are pending admin verification. You'll be able to receive orders once approved.
+    </div>
+    {% endif %}
+
+    <!-- Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon amber"><i class="fa fa-rupee-sign"></i></div>
+                <div>
+                    <div class="stat-value">₹{{ earnings_today }}</div>
+                    <div class="stat-label">Today's Earnings</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="fa fa-truck"></i></div>
+                <div>
+                    <div class="stat-value">{{ active_count }}</div>
+                    <div class="stat-label">Active Orders</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fa fa-check-circle"></i></div>
+                <div>
+                    <div class="stat-value">{{ completed_count }}</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fa fa-star"></i></div>
+                <div>
+                    <div class="stat-value">{{ profile.rating_avg }}</div>
+                    <div class="stat-label">Avg Rating</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Today's Bookings -->
+        <div class="col-lg-8">
+            <div class="dash-card">
+                <h6 class="fw-bold mb-3">Today's Assignments</h6>
+                {% if today_bookings %}
+                <div class="deliver-table">
+                    <table class="table table-dark mb-0">
+                        <thead>
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>Customer</th>
+                                <th>Drops</th>
+                                <th>Status</th>
+                                <th>Price</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in today_bookings %}
+                            <tr>
+                                <td><span style="color:var(--primary-light)">{{ b.booking_id }}</span></td>
+                                <td>{{ b.customer.get_full_name }}</td>
+                                <td>{{ b.get_drop_count }}</td>
+                                <td><span class="status-badge status-{{ b.status }}">{{ b.get_status_display }}</span>
+                                </td>
+                                <td>₹{{ b.total_price }}</td>
+                                <td>
+                                    <a href="{% url 'driver_new_booking' %}"
+                                        class="btn btn-sm btn-outline-primary btn-sm">
+                                        <i class="fa fa-map-marked-alt"></i> Map
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <i class="fa fa-inbox fa-2x mb-2 d-block" style="color:var(--card-border)"></i>
+                    No assignments today.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-lg-4">
+            <div class="dash-card mb-4">
+                <h6 class="fw-bold mb-3">Availability</h6>
+                <div class="text-center py-2">
+                    {% if profile.is_available %}
+                    <div class="mb-3" style="font-size:3rem">🟢</div>
+                    <p class="available-label mb-3">You are Online</p>
+                    {% else %}
+                    <div class="mb-3" style="font-size:3rem">🔴</div>
+                    <p class="unavailable-label mb-3">You are Offline</p>
+                    {% endif %}
+                    <a href="{% url 'driver_availability' %}"
+                        class="btn {% if profile.is_available %}btn-danger{% else %}btn-success{% endif %} w-100">
+                        {% if profile.is_available %}Go Offline{% else %}Go Online{% endif %}
+                    </a>
+                </div>
+            </div>
+            <div class="dash-card">
+                <h6 class="fw-bold mb-3">Quick Links</h6>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'driver_new_booking' %}" class="btn btn-outline-primary btn-sm"><i
+                            class="fa fa-map me-2"></i>View Map</a>
+                    <a href="{% url 'driver_earnings' %}" class="btn btn-outline-primary btn-sm"><i
+                            class="fa fa-wallet me-2"></i>Earnings</a>
+                    <a href="{% url 'driver_booking_history' %}" class="btn btn-outline-primary btn-sm"><i
+                            class="fa fa-history me-2"></i>History</a>
+                    <a href="{% url 'driver_profile' %}" class="btn btn-outline-secondary btn-sm"><i
+                            class="fa fa-id-card me-2"></i>Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

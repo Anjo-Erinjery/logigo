@@ -1,0 +1,44 @@
+{% extends "base/base.html" %}
+{% block title %}Live Tracking — Admin{% endblock %}
+{% block navbar %}{% include "base/sidebar_admin.html" %}{% endblock %}
+{% block content %}
+<div class="topbar">
+    <span class="topbar-title"><i class="fa fa-satellite me-2" style="color:var(--success)"></i>Live Tracking — {{ bookings|length }} Active Orders</span>
+</div>
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        <div class="col-lg-9">
+            <div class="dash-card p-0 overflow-hidden">
+                <div id="adminMap" style="height:600px;"></div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="dash-card" style="max-height:620px;overflow-y:auto;">
+                <h6 class="fw-bold mb-3">Active Orders</h6>
+                {% for b in bookings %}
+                <div class="drop-card mb-2 cursor-pointer" onclick="focusOrder({{ b.pickup_lat|default:20 }}, {{ b.pickup_lng|default:79 }})">
+                    <div class="small fw-bold" style="color:var(--primary-light)">{{ b.booking_id }}</div>
+                    <div class="small text-muted">{{ b.customer.get_full_name }}</div>
+                    <div class="small">🚗 {% if b.driver %}{{ b.driver.get_full_name }}{% else %}<span class="text-muted">Unassigned</span>{% endif %}</div>
+                    <span class="status-badge status-{{ b.status }} mt-1 d-inline-block">{{ b.get_status_display }}</span>
+                </div>
+                {% empty %}
+                <div class="text-center py-4 text-muted">No active deliveries</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    const map = L.map('adminMap').setView([20.5937, 78.9629], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+    {% for b in bookings %}
+    L.marker([{{ b.pickup_lat|default:20 }}, {{ b.pickup_lng|default:79 }}])
+        .addTo(map)
+        .bindPopup('<b>{{ b.booking_id }}</b><br>{{ b.customer.get_full_name|escapejs }}<br>{{ b.get_status_display }}');
+    {% endfor %}
+    function focusOrder(lat, lng) { map.setView([lat, lng], 14); }
+</script>
+{% endblock %}

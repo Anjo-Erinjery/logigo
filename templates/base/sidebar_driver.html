@@ -1,0 +1,42 @@
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo d-flex align-items-center justify-content-between px-3">
+        <div class="d-flex align-items-center gap-2">
+            <div class="sidebar-icon-container">
+                <span class="material-icons-outlined text-white">electric_car</span>
+            </div>
+            <span class="text-gradient">Deliver</span>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
+            <span class="material-icons-outlined">dark_mode</span>
+        </button>
+    </div>
+    <ul class="sidebar-nav list-unstyled">
+        <li class="nav-item"><a href="{% url 'driver_dashboard' %}"
+                class="{% if request.resolver_match.url_name == 'driver_dashboard' %}active{% endif %}">
+                <i class="fa fa-tachometer-alt"></i> Dashboard
+            </a></li>
+        <li class="nav-item"><a href="{% url 'driver_new_booking' %}">
+                <i class="fa fa-map-marked-alt"></i> Booking Map
+            </a></li>
+        <li class="nav-item"><a href="{% url 'driver_earnings' %}">
+                <i class="fa fa-wallet"></i> Earnings
+            </a></li>
+        <li class="nav-item"><a href="{% url 'driver_booking_history' %}">
+                <i class="fa fa-history"></i> Booking History
+            </a></li>
+        <li class="nav-item"><a href="{% url 'driver_availability' %}">
+                <i class="fa fa-toggle-on"></i> Toggle Status
+            </a></li>
+        <li class="nav-item"><a href="{% url 'driver_profile' %}">
+                <i class="fa fa-id-card"></i> Profile
+            </a></li>
+        <li class="nav-item"><a href="{% url 'ticket_list' %}">
+                <i class="fa fa-headset"></i> Tickets
+            </a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm w-100">
+            <i class="fa fa-sign-out-alt me-1"></i>Logout
+        </a>
+    </div>
+</nav>

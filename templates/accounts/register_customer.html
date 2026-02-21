@@ -1,0 +1,66 @@
+﻿{% extends "base/base.html" %}
+{% block title %}Register as Customer — Deliver{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card" style="max-width:540px;">
+        <div class="auth-logo d-flex align-items-center justify-content-center gap-2 mb-4">
+            <div class="sidebar-icon-container">
+                <span class="material-icons-outlined text-white">local_shipping</span>
+            </div>
+            <span class="text-gradient">Deliver</span>
+        </div>
+        <h5 class="text-center mb-4 fw-bold">Create Customer Account</h5>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-6">
+                    <label class="form-label">First Name</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}<div class="text-danger small">{{ form.first_name.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-6">
+                    <label class="form-label">Last Name</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}<div class="text-danger small">{{ form.last_name.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Email Address</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Phone Number</label>
+                    {{ form.phone_number }}
+                    {% if form.phone_number.errors %}<div class="text-danger small">{{ form.phone_number.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Address</label>
+                    {{ form.address }}
+                </div>
+                <div class="col-6">
+                    <label class="form-label">Password</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}<div class="text-danger small">{{ form.password1.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-6">
+                    <label class="form-label">Confirm Password</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}<div class="text-danger small">{{ form.password2.errors.0 }}</div>{% endif %}
+                </div>
+                {% if form.non_field_errors %}
+                <div class="col-12">
+                    <div class="alert alert-danger py-2 small">{{ form.non_field_errors.0 }}</div>
+                </div>
+                {% endif %}
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary w-100 py-2"><i class="fa fa-user-plus me-2"></i>Create Account</button>
+                </div>
+            </div>
+        </form>
+        <div class="text-center mt-3 small text-muted">Already have an account? <a href="{% url 'login' %}" style="color:var(--primary-light)">Login</a></div>
+    </div>
+</div>
+{% endblock %}

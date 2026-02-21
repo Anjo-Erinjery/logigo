@@ -1,0 +1,39 @@
+{% extends "base/base.html" %}
+{% block title %}Booking History — Driver{% endblock %}
+{% block navbar %}{% include "base/sidebar_driver.html" %}{% endblock %}
+{% block content %}
+<div class="topbar"><span class="topbar-title"><i class="fa fa-history me-2"
+            style="color:var(--primary-light)"></i>Booking History</span></div>
+<div class="container-fluid py-4">
+    <div class="deliver-table">
+        <table class="table table-dark table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Customer</th>
+                    <th>Drops</th>
+                    <th>Status</th>
+                    <th>Price</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bookings %}
+                <tr>
+                    <td><span style="color:var(--primary-light)">{{ b.booking_id }}</span></td>
+                    <td>{{ b.customer.get_full_name }}</td>
+                    <td>{{ b.get_drop_count }}</td>
+                    <td><span class="status-badge status-{{ b.status }}">{{ b.get_status_display }}</span></td>
+                    <td>₹{{ b.total_price }}</td>
+                    <td class="small text-muted">{{ b.created_at|date:"d M Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">No bookings yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+﻿{% extends "base/base.html" %}
+{% block title %}Register as Driver — Deliver{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block navbar %}{% endblock %}{% block footer %}{% endblock %}
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card" style="max-width:580px;">
+        <div class="auth-logo d-flex align-items-center justify-content-center gap-2 mb-4">
+            <div class="sidebar-icon-container">
+                <span class="material-icons-outlined text-white">local_shipping</span>
+            </div>
+            <span class="text-gradient">Deliver</span>
+        </div>
+        <h5 class="text-center mb-4 fw-bold">Register as Driver</h5>
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-6">
+                    <label class="form-label">First Name</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}<div class="text-danger small">{{ form.first_name.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-6"><label class="form-label">Last Name</label>{{ form.last_name }}</div>
+                <div class="col-12">
+                    <label class="form-label">Email</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-12"><label class="form-label">Phone</label>{{ form.phone_number }}</div>
+                <div class="col-6"><label class="form-label">Vehicle Type</label>{{ form.vehicle_type }}</div>
+                <div class="col-6"><label class="form-label">Vehicle Number</label>{{ form.vehicle_number }}</div>
+                <div class="col-12"><label class="form-label">Aadhaar Photo <span class="text-muted">(OCR scan)</span></label>{{ form.aadhaar_photo }}</div>
+                <div class="col-12"><label class="form-label">Driving License Photo <span class="text-muted">(OCR scan)</span></label>{{ form.license_photo }}</div>
+                <div class="col-12"><label class="form-label">Address</label>{{ form.address }}</div>
+                <div class="col-6">
+                    <label class="form-label">Password</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}<div class="text-danger small">{{ form.password1.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-6"><label class="form-label">Confirm Password</label>{{ form.password2 }}</div>
+                {% if form.non_field_errors %}
+                <div class="col-12">
+                    <div class="alert alert-danger py-2 small">{{ form.non_field_errors.0 }}</div>
+                </div>
+                {% endif %}
+                <div class="col-12">
+                    <div class="small text-muted mb-2 p-2" style="background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.2);border-radius:8px">
+                        <i class="fa fa-info-circle me-1" style="color:var(--accent)"></i>
+                        Documents will be scanned via OCR for verification.
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2"><i class="fa fa-user-plus me-2"></i>Register as Driver</button>
+                </div>
+            </div>
+        </form>
+        <div class="text-center mt-3 small text-muted">Already registered? <a href="{% url 'login' %}" style="color:var(--primary-light)">Login</a></div>
+    </div>
+</div>
+{% endblock %}

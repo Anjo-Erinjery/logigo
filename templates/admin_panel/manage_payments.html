@@ -1,0 +1,43 @@
+{% extends "base/base.html" %}
+{% block title %}Payments — Admin{% endblock %}
+{% block navbar %}{% include "base/sidebar_admin.html" %}{% endblock %}
+{% block content %}
+<div class="topbar">
+    <span class="topbar-title"><i class="fa fa-credit-card me-2" style="color:var(--success)"></i>Payments — Total
+        Revenue: ₹{{ total_revenue|floatformat:0 }}</span>
+</div>
+<div class="container-fluid py-4">
+    <div class="deliver-table">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                    <th>Transaction ID</th>
+                    <th>Paid At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in payments %}
+                <tr>
+                    <td><span style="color:var(--primary-light)">{{ p.booking.booking_id }}</span></td>
+                    <td>{{ p.booking.customer.get_full_name }}</td>
+                    <td class="fw-bold">₹{{ p.amount }}</td>
+                    <td>{{ p.get_method_display }}</td>
+                    <td><span class="status-badge status-{{ p.status }}">{{ p.get_status_display }}</span></td>
+                    <td class="small text-muted">{{ p.transaction_id|default:"—" }}</td>
+                    <td class="small text-muted">{{ p.paid_at|date:"d M Y, H:i"|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">No payments yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+﻿{% extends "base/base.html" %}
+{% block title %}Manage Orders — Admin{% endblock %}
+{% block navbar %}{% include "base/sidebar_admin.html" %}{% endblock %}
+{% block content %}
+<div class="topbar">
+    <span class="topbar-title"><i class="fa fa-box me-2" style="color:var(--primary-light)"></i>Manage Orders</span>
+    <div class="topbar-user">
+        <form method="get" class="d-flex gap-2">
+            <select name="status" class="form-select form-select-sm" style="width:160px" onchange="this.form.submit()">
+                <option value="">All Statuses</option>
+                {% for val,lbl in status_choices %}
+                <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ lbl }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+</div>
+<div class="container-fluid py-4">
+    <div class="deliver-table">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Customer</th>
+                    <th>Driver</th>
+                    <th>Drops</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in orders %}
+                <tr>
+                    <td><span style="color:var(--primary-light)">{{ b.booking_id }}</span></td>
+                    <td>{{ b.customer.get_full_name }}</td>
+                    <td>{% if b.driver %}{{ b.driver.get_full_name }}{% else %}<span
+                            class="text-muted">Unassigned</span>{% endif %}</td>
+                    <td>{{ b.get_drop_count }}</td>
+                    <td>₹{{ b.total_price }}</td>
+                    <td><span class="status-badge status-{{ b.status }}">{{ b.get_status_display }}</span></td>
+                    <td class="small text-muted">{{ b.created_at|date:"d M Y" }}</td>
+                    <td>
+                        <form method="post" action="{% url 'admin_update_order_status' b.booking_id %}"
+                            class="d-flex flex-column gap-1">
+                            {% csrf_token %}
+                            <select name="driver" class="form-select form-select-sm" style="width:160px">
+                                <option value="">-- Assign Driver --</option>
+                                {% for d in drivers %}
+                                <option value="{{ d.pk }}" {% if b.driver.pk == d.pk %}selected{% endif %}>
+                                    {{ d.get_full_name }} ({{ d.driver_profile.vehicle_type }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="d-flex gap-1">
+                                <select name="status" class="form-select form-select-sm" style="width:120px">
+                                    {% for s_val, s_lbl in status_choices %}
+                                    <option value="{{ s_val }}" {% if b.status == s_val %}selected{% endif %}>{{ s_lbl }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-primary" title="Update Order"><i
+                                        class="fa fa-save"></i></button>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-4 text-muted">No orders found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

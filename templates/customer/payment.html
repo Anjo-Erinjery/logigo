@@ -1,0 +1,34 @@
+{% extends "base/base.html" %}
+{% block title %}Payment — {{ booking.booking_id }}{% endblock %}
+{% block navbar %}{% include "base/sidebar_customer.html" %}{% endblock %}
+{% block content %}
+<div class="topbar"><span class="topbar-title"><i class="fa fa-credit-card me-2"
+            style="color:var(--success)"></i>Payment</span></div>
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <div class="dash-card text-center">
+                <div style="font-size:3rem;margin-bottom:1rem;">💳</div>
+                <h5 class="fw-bold">{{ booking.booking_id }}</h5>
+                <div style="font-size:2.5rem;font-weight:900;color:var(--primary-light);margin:1rem 0">₹{{ booking.total_price }}</div>
+                <p class="text-muted small mb-4">{{ booking.pickup_address|truncatechars:50 }}</p>
+                {% if payment and payment.status == 'success' %}
+                <div class="alert"
+                    style="background:rgba(16,185,129,.1);border:1px solid var(--success);border-radius:12px;color:var(--success)">
+                    <i class="fa fa-check-circle me-2"></i>Payment Successful — {{ payment.transaction_id }}
+                </div>
+                {% else %}
+                <div class="d-grid gap-3">
+                    <button class="btn btn-primary py-2" id="rzp-button">
+                        <i class="fa fa-rupee-sign me-2"></i>Pay ₹{{ booking.total_price }} Online
+                    </button>
+                    <a href="{% url 'customer_order_history' %}" class="btn btn-outline-secondary">
+                        <i class="fa fa-coins me-2"></i>Pay Cash on Delivery
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

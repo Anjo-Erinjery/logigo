@@ -1,0 +1,91 @@
+{% extends "base/base.html" %}
+{% block title %}Manage Tickets — Admin{% endblock %}
+{% block navbar %}{% include "base/sidebar_admin.html" %}{% endblock %}
+{% block content %}
+<div class="topbar">
+    <span class="topbar-title"><i class="fa fa-headset me-2" style="color:var(--primary-light)"></i>Support
+        Tickets</span>
+</div>
+<div class="container-fluid py-4">
+    <div class="deliver-table">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Ticket ID</th>
+                    <th>By</th>
+                    <th>Subject</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in tickets %}
+                <tr>
+                    <td><span style="color:var(--primary-light)">{{ t.ticket_id }}</span></td>
+                    <td>{{ t.raised_by.get_full_name }} <span class="badge bg-secondary">{{ t.raised_by.role }}</span>
+                    </td>
+                    <td>{{ t.subject|truncatechars:40 }}</td>
+                    <td>
+                        <span
+                            class="badge {% if t.priority == 'urgent' %}bg-danger{% elif t.priority == 'high' %}bg-warning text-dark{% elif t.priority == 'medium' %}bg-info text-dark{% else %}bg-secondary{% endif %}">
+                            {{ t.get_priority_display }}
+                        </span>
+                    </td>
+                    <td><span class="status-badge status-{{ t.status }}">{{ t.get_status_display }}</span></td>
+                    <td class="small text-muted">{{ t.created_at|date:"d M Y" }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                            data-bs-target="#respond{{ t.pk }}"><i class="fa fa-reply"></i> Respond</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% for t in tickets %}
+<div class="modal fade" id="respond{{ t.pk }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background:var(--card-bg);border:1px solid var(--card-border)">
+            <div class="modal-header border-secondary">
+                <h6 class="modal-title">{{ t.ticket_id }} — {{ t.subject }}</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'admin_respond_ticket' t.ticket_id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3 small text-muted">{{ t.description }}</div>
+                    <div class="mb-3">
+                        <label class="form-label">Response</label>
+                        <textarea name="response" class="form-control" rows="3"
+                            placeholder="Write your response...">{{ t.admin_response }}</textarea>
+                    </div>
+                    <div>
+                        <label class="form-label">Update Status</label>
+                        <select name="status" class="form-select">
+                            <option value="open" {% if t.status == 'open' %}selected{% endif %}>Open</option>
+                            <option value="in_progress" {% if t.status == 'in_progress' %}selected{% endif %}>In Progress
+                            </option>
+                            <option value="resolved" {% if t.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                            <option value="closed" {% if t.status == 'closed' %}selected{% endif %}>Closed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="submit" class="btn btn-primary">Send Response</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% if not tickets %}
+<div class="text-center py-4 text-muted">No tickets found.</div>
+{% endif %}
+
+{% endblock %}

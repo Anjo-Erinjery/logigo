@@ -1,0 +1,142 @@
+{% extends "base/base.html" %}
+{% block title %}Customer Dashboard — Deliver{% endblock %}
+{% block navbar %}
+{% include "base/sidebar_customer.html" %}
+{% endblock %}
+{% block content %}
+<div class="topbar">
+    <span class="topbar-title"><i class="fa fa-tachometer-alt me-2"
+            style="color:var(--primary-light)"></i>Dashboard</span>
+    <div class="topbar-user">
+        <div class="avatar-sm">{{ request.user.first_name|first }}</div>
+        <span class="small">{{ request.user.get_full_name }}</span>
+        <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-danger ms-2"><i class="fa fa-sign-out-alt"></i></a>
+    </div>
+</div>
+
+<div class="container-fluid py-4">
+    <!-- Stats row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="fa fa-box"></i></div>
+                <div>
+                    <div class="stat-value">{{ total_bookings }}</div>
+                    <div class="stat-label">Total Bookings</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon amber"><i class="fa fa-truck"></i></div>
+                <div>
+                    <div class="stat-value">{{ active_bookings|length }}</div>
+                    <div class="stat-label">Active Orders</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fa fa-check-circle"></i></div>
+                <div>
+                    <div class="stat-value">{{ completed_bookings }}</div>
+                    <div class="stat-label">Delivered</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon red"><i class="fa fa-ticket-alt"></i></div>
+                <div>
+                    <div class="stat-value">{{ pending_tickets }}</div>
+                    <div class="stat-label">Open Tickets</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active orders table -->
+    <div class="dash-card mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h6 class="mb-0 fw-bold">Active Orders</h6>
+            <a href="{% url 'customer_new_booking' %}" class="btn btn-primary btn-sm">
+                <i class="fa fa-plus me-1"></i>New Booking
+            </a>
+        </div>
+        {% if active_bookings %}
+        <div class="deliver-table">
+            <table class="table table-dark table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Pickup</th>
+                        <th>Drops</th>
+                        <th>Status</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in active_bookings %}
+                    <tr>
+                        <td><span class="badge" style="background:rgba(108,60,225,.2);color:var(--primary-light)">{{ b.booking_id }}</span></td>
+                        <td>{{ b.pickup_address|truncatechars:30 }}</td>
+                        <td>{{ b.get_drop_count }} drop{{ b.get_drop_count|pluralize }}</td>
+                        <td><span class="status-badge status-{{ b.status }}">{{ b.get_status_display }}</span></td>
+                        <td>₹{{ b.total_price }}</td>
+                        <td>
+                            <a href="{% url 'customer_tracking' b.booking_id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fa fa-map-marker-alt"></i> Track
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="fa fa-box-open fa-3x mb-3 d-block" style="color:var(--card-border)"></i>
+            No active orders. <a href="{% url 'customer_new_booking' %}" style="color:var(--primary-light)">Book your
+                first delivery!</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="dash-card">
+                <h6 class="mb-3 fw-bold">Quick Actions</h6>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'customer_new_booking' %}" class="btn btn-primary"><i
+                            class="fa fa-plus me-2"></i>New Booking</a>
+                    <a href="{% url 'customer_order_history' %}" class="btn btn-outline-primary"><i
+                            class="fa fa-history me-2"></i>Order History</a>
+                    <a href="{% url 'raise_ticket' %}" class="btn btn-outline-secondary"><i
+                            class="fa fa-headset me-2"></i>Raise Ticket</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="dash-card">
+                <h6 class="mb-3 fw-bold">How It Works</h6>
+                <div class="d-flex gap-3 mb-2">
+                    <div class="stat-icon purple"
+                        style="width:40px;height:40px;font-size:1rem;flex-shrink:0;border-radius:10px">1</div>
+                    <div><strong>Book</strong> — Enter pickup &amp; drop locations</div>
+                </div>
+                <div class="d-flex gap-3 mb-2">
+                    <div class="stat-icon amber"
+                        style="width:40px;height:40px;font-size:1rem;flex-shrink:0;border-radius:10px">2</div>
+                    <div><strong>Pay</strong> — Choose card, UPI, or COD</div>
+                </div>
+                <div class="d-flex gap-3">
+                    <div class="stat-icon green"
+                        style="width:40px;height:40px;font-size:1rem;flex-shrink:0;border-radius:10px">3</div>
+                    <div><strong>Track</strong> — Live GPS tracking</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

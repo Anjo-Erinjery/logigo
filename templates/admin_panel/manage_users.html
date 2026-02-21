@@ -1,0 +1,56 @@
+{% extends "base/base.html" %}
+{% block title %}Manage Users — Admin{% endblock %}
+{% block navbar %}{% include "base/sidebar_admin.html" %}{% endblock %}
+{% block content %}
+<div class="topbar">
+    <span class="topbar-title"><i class="fa fa-users me-2" style="color:var(--primary-light)"></i>Manage Users</span>
+    <div class="topbar-user">
+        <form method="get" class="d-flex gap-2">
+            <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="Search..."
+                style="width:200px">
+            <button class="btn btn-sm btn-primary"><i class="fa fa-search"></i></button>
+        </form>
+    </div>
+</div>
+<div class="container-fluid py-4">
+    <div class="deliver-table">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Verified</th>
+                    <th>Joined</th>
+                    <th>Active</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>{{ u.get_full_name }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.phone_number|default:"—" }}</td>
+                    <td>{% if u.is_email_verified %}<span class="text-success">✓</span>{% else %}<span
+                            class="text-danger">✗</span>{% endif %}</td>
+                    <td class="small text-muted">{{ u.created_at|date:"d M Y" }}</td>
+                    <td>{% if u.is_active %}<span class="badge bg-success">Active</span>{% else %}<span
+                            class="badge bg-danger">Inactive</span>{% endif %}</td>
+                    <td>
+                        <a href="{% url 'admin_toggle_user' u.pk %}"
+                            class="btn btn-sm {% if u.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+                            {% if u.is_active %}Deactivate{% else %}Activate{% endif %}
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">No users found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

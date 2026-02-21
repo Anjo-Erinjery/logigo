@@ -1,0 +1,24 @@
+{% extends "base/base.html" %}
+{% block title %}Raise Ticket — Deliver{% endblock %}
+{% block navbar %}{% if request.user.role == 'driver' %}{% include "base/sidebar_driver.html" %}{% else %}{% include "base/sidebar_customer.html" %}{% endif %}{% endblock %}
+{% block content %}
+<div class="topbar"><span class="topbar-title"><i class="fa fa-headset me-2"></i>Raise Support Ticket</span></div>
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="dash-card">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="mb-3"><label class="form-label">Subject</label>{{ form.subject }}{% if form.subject.errors %}<div class="text-danger small">{{ form.subject.errors.0 }}</div>{% endif %}</div>
+                    <div class="mb-3"><label class="form-label">Priority</label>{{ form.priority }}</div>
+                    <div class="mb-3"><label class="form-label">Related Booking (optional)</label>{{ form.booking }}
+                    </div>
+                    <div class="mb-4"><label class="form-label">Description</label>{{ form.description }}{% if form.description.errors %}<div class="text-danger small">{{ form.description.errors.0 }}</div>{% endif %}</div>
+                    <button type="submit" class="btn btn-primary w-100"><i class="fa fa-paper-plane me-2"></i>Submit
+                        Ticket</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

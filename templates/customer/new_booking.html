@@ -1,0 +1,436 @@
+{% extends "base/base.html" %}
+{% block title %}New Booking — Deliver{% endblock %}
+{% block navbar %}{% include "base/sidebar_customer.html" %}{% endblock %}
+{% block content %}
+<div class="topbar">
+    <span class="topbar-title"><i class="fa fa-plus-circle me-2" style="color:var(--primary-light)"></i>New
+        Booking</span>
+    <div class="topbar-user">
+        <div class="avatar-sm">{{ request.user.first_name|first }}</div>
+        <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-danger ms-2"><i class="fa fa-sign-out-alt"></i></a>
+    </div>
+</div>
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        <!-- Booking Form -->
+        <div class="col-lg-6">
+            <div class="dash-card">
+                <h6 class="fw-bold mb-3"><i class="fa fa-map-pin me-2" style="color:var(--primary-light)"></i>Pickup
+                    Details</h6>
+                <form method="post" id="bookingForm" novalidate>
+                    {% csrf_token %}
+                    {% if form.errors %}
+                    <div class="alert alert-danger py-2 small">
+                        <ul class="mb-0">
+                            {% for field in form %}
+                            {% for error in field.errors %}<li><strong>{{ field.label }}:</strong> {{ error }}</li>{%
+                            endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    <input type="hidden" name="distance_km" id="distance_km" value="10">
+                    <input type="hidden" name="num_drops" id="num_drops" value="1">
+                    <div class="mb-3 autocomplete-container">
+                        <label class="form-label">Pickup Address *</label>
+                        {{ form.pickup_address }}
+                        <div id="pickup_results" class="autocomplete-results"></div>
+                        {{ form.pickup_lat }}
+                        {{ form.pickup_lng }}
+                    </div>
+
+                    <!-- Drop Locations -->
+                    <h6 class="fw-bold mb-3 mt-4"><i class="fa fa-map-marker-alt me-2"
+                            style="color:var(--accent)"></i>Drop Locations</h6>
+                    <div id="drop-container">
+                        <div class="drop-card" data-drop="1">
+                            <button type="button" class="remove-drop" onclick="removeDrop(this)" style="display:none"><i
+                                    class="fa fa-times"></i></button>
+                            <div class="row g-2">
+                                <div class="col-12"><label class="form-label">Drop #1</label></div>
+                                <div class="col-6">
+                                    <input type="text" class="form-control" name="recipient_name_1"
+                                        placeholder="Recipient Name" required>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" class="form-control" name="recipient_phone_1"
+                                        placeholder="Phone Number">
+                                </div>
+                                <div class="col-12 autocomplete-container">
+                                    <input type="text" class="form-control" id="drop_address_1" name="drop_address_1"
+                                        placeholder="Drop Address" required onfocus="attachAutocomplete(this)">
+                                    <div id="results_drop_1" class="autocomplete-results"></div>
+                                    <input type="hidden" name="drop_lat_1" id="drop_lat_1">
+                                    <input type="hidden" name="drop_lng_1" id="drop_lng_1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-sm mb-4" onclick="addDrop()"
+                        id="addDropBtn">
+                        <i class="fa fa-plus me-1"></i>Add Another Drop Location
+                    </button>
+
+                    <!-- Package Details -->
+                    <h6 class="fw-bold mb-3"><i class="fa fa-box me-2" style="color:var(--info)"></i>Package Details
+                    </h6>
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Package Type</label>
+                            {{ form.package_type }}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Weight (kg)</label>
+                            {{ form.item_weight }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Item Description</label>
+                            {{ form.item_description }}
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                {{ form.is_fragile }}
+                                <label class="form-check-label ms-2" style="color:var(--accent)">
+                                    <i class="fa fa-exclamation-triangle me-1"></i>Fragile Item — Handle with care
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Special Instructions</label>
+                            {{ form.notes }}
+                        </div>
+                    </div>
+
+                    <!-- Price Estimate -->
+                    <div class="dash-card mb-3" style="background:rgba(108,60,225,.1);border-color:var(--primary)">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold"><i class="fa fa-rupee-sign me-1"></i>Estimated Price</span>
+                            <span id="price-estimate" class="fw-bold fs-4"
+                                style="color:var(--primary-light)">₹170</span>
+                        </div>
+                        <div class="small text-muted mt-1">Base ₹50 + Distance + Weight + Multi-drop charges</div>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <h6 class="fw-bold mb-2"><i class="fa fa-credit-card me-2" style="color:var(--success)"></i>Payment
+                        Method</h6>
+                    <div class="d-flex gap-2 mb-4">
+                        <input type="radio" name="payment_method" id="pm_cod" value="cod" class="d-none" checked>
+                        <label for="pm_cod" class="btn btn-outline-secondary btn-sm pm-btn active-pm">💵 COD</label>
+                        <input type="radio" name="payment_method" id="pm_upi" value="upi" class="d-none">
+                        <label for="pm_upi" class="btn btn-outline-secondary btn-sm pm-btn">📱 UPI</label>
+                        <input type="radio" name="payment_method" id="pm_card" value="card" class="d-none">
+                        <label for="pm_card" class="btn btn-outline-secondary btn-sm pm-btn">💳 Card</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2">
+                        <i class="fa fa-check-circle me-2"></i>Confirm Booking
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Map Preview -->
+        <div class="col-lg-6">
+            <div class="dash-card sticky-top" style="top:90px;">
+                <h6 class="fw-bold mb-3"><i class="fa fa-map me-2" style="color:var(--success)"></i>Route Preview</h6>
+                <div class="map-container" id="bookingMap"></div>
+                <div class="mt-3 small text-muted">
+                    <i class="fa fa-info-circle me-1"></i>Search addresses or click on the map to place pins.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let dropCount = 1;
+    const MAX_DROPS = 5;
+    const BASE = 50, PER_KM = 12, WT_RATE = 5, MD_CHARGE = 30;
+
+    // Safety check for API instance
+    if (typeof window.PlaceAutocomplete !== 'undefined' && !window.autocompleteApiInstance) {
+        window.autocompleteApiInstance = new PlaceAutocomplete('d5683c70aamsh865e63a743fd600p16939djsn74e97e3dd84f');
+    }
+
+    function calcPrice() {
+        const dist = parseFloat(document.getElementById('distance_km').value) || 10;
+        const weight = parseFloat(document.querySelector('[name=item_weight]').value) || 0;
+        const drops = dropCount;
+        const price = BASE + (dist * PER_KM) + (weight * WT_RATE) + ((drops - 1) * MD_CHARGE);
+        document.getElementById('price-estimate').textContent = '₹' + price.toFixed(0);
+    }
+
+    // Form validation before submit
+    document.getElementById('bookingForm').addEventListener('submit', async function (e) {
+        e.preventDefault(); // Always prevent to handle async geocoding check
+
+        const btn = this.querySelector('button[type=submit]');
+        const originalHtml = btn.innerHTML;
+        const pickupAddr = document.getElementById('pickup_address').value;
+        const pickupLatEl = document.querySelector('[name=pickup_lat]');
+
+        if (pickupAddr.length < 5) {
+            alert("Please enter a valid pickup address.");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i>Processing...';
+
+        try {
+            // 1. Geocode Pickup if missing
+            if (!pickupLatEl.value || pickupLatEl.value === "0" || pickupLatEl.value === 0) {
+                console.log("Submit: Geocoding pickup...");
+                const details = await window.autocompleteApiInstance.geocodeAddress(pickupAddr);
+                if (details) {
+                    updatePickupMarker(details.lat, details.lng);
+                }
+            }
+
+            // 2. Geocode Drops
+            for (let i = 1; i <= dropCount; i++) {
+                const latEl = document.getElementById(`drop_lat_${i}`);
+                const addrEl = document.getElementById(`drop_address_${i}`);
+                if (latEl && (!latEl.value || latEl.value === "0" || latEl.value == 0) && addrEl && addrEl.value.length > 5) {
+                    console.log(`Submit: Geocoding drop ${i}...`);
+                    const d = await window.autocompleteApiInstance.geocodeAddress(addrEl.value);
+                    if (d) {
+                        latEl.value = d.lat;
+                        const lngEl = document.getElementById(`drop_lng_${i}`);
+                        if (lngEl) lngEl.value = d.lng;
+                    }
+                }
+            }
+
+            // 3. Final Check
+            if (!pickupLatEl.value || pickupLatEl.value === "0") {
+                throw new Error("Could not find pickup location coordinates.");
+            }
+
+            // 4. Actual Submit
+            console.log("Form valid, submitting...");
+            this.submit();
+
+        } catch (err) {
+            console.error("Submit Error:", err);
+            alert(err.message || "Something went wrong. Please check your addresses.");
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    });
+
+    function addDrop() {
+        if (dropCount >= MAX_DROPS) { alert('Maximum 5 drop locations allowed.'); return; }
+        dropCount++;
+        document.getElementById('num_drops').value = dropCount;
+        const container = document.getElementById('drop-container');
+        const dropId = `drop_address_${dropCount}`;
+        const resultsId = `results_drop_${dropCount}`;
+        container.insertAdjacentHTML('beforeend', `
+    <div class="drop-card" data-drop="${dropCount}">
+      <button type="button" class="remove-drop" onclick="removeDrop(this)"><i class="fa fa-times"></i></button>
+      <div class="row g-2">
+        <div class="col-12"><label class="form-label">Drop #${dropCount}</label></div>
+        <div class="col-6"><input type="text" class="form-control" name="recipient_name_${dropCount}" placeholder="Recipient Name"></div>
+        <div class="col-6"><input type="text" class="form-control" name="recipient_phone_${dropCount}" placeholder="Phone Number"></div>
+        <div class="col-12 autocomplete-container">
+            <input type="text" class="form-control" id="${dropId}" name="${dropId}" placeholder="Drop Address" onfocus="attachAutocomplete(this)">
+            <div id="${resultsId}" class="autocomplete-results"></div>
+            <input type="hidden" name="drop_lat_${dropCount}" id="drop_lat_${dropCount}">
+            <input type="hidden" name="drop_lng_${dropCount}" id="drop_lng_${dropCount}">
+        </div>
+      </div>
+    </div>`);
+        if (dropCount >= MAX_DROPS) document.getElementById('addDropBtn').disabled = true;
+        calcPrice();
+    }
+
+    function removeDrop(btn) {
+        btn.closest('.drop-card').remove();
+        dropCount--;
+        document.getElementById('num_drops').value = dropCount;
+        document.getElementById('addDropBtn').disabled = false;
+        calcPrice();
+    }
+
+    // Leaflet Map
+    const map = L.map('bookingMap').setView([20.5937, 78.9629], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    let pickupMarker, dropMarkers = [];
+
+    function updatePickupMarker(lat, lng, moveMap = true) {
+        if (!pickupMarker) {
+            pickupMarker = L.marker([lat, lng], { title: 'Pickup', draggable: true }).addTo(map).bindPopup('Pickup Location').openPopup();
+            pickupMarker.on('dragend', function (e) {
+                const pos = pickupMarker.getLatLng();
+                document.querySelector('[name=pickup_lat]').value = pos.lat;
+                document.querySelector('[name=pickup_lng]').value = pos.lng;
+            });
+        } else {
+            pickupMarker.setLatLng([lat, lng]);
+        }
+        document.querySelector('[name=pickup_lat]').value = lat;
+        document.querySelector('[name=pickup_lng]').value = lng;
+        if (moveMap) map.setView([lat, lng], 14);
+    }
+
+    map.on('click', function (e) {
+        if (!pickupMarker) {
+            updatePickupMarker(e.latlng.lat, e.latlng.lng, false);
+        }
+    });
+
+    // Autocomplete Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+        const pickupInput = document.getElementById('pickup_address');
+
+        initAutocomplete('pickup_address', 'pickup_results', (placeId, name, lat, lng) => {
+            if (lat && lng) {
+                updatePickupMarker(parseFloat(lat), parseFloat(lng));
+            } else {
+                geocodeAndMove(name, 'pickup');
+            }
+        });
+
+        // Autopopulate if they just type and blur
+        if (pickupInput) {
+            pickupInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    const latVal = document.querySelector('[name=pickup_lat]').value;
+                    if ((!latVal || latVal === "0" || latVal === 0) && pickupInput.value.length > 5) {
+                        console.log("Auto-geocoding pickup on blur...");
+                        window.autocompleteApiInstance.geocodeAddress(pickupInput.value).then(details => {
+                            if (details) updatePickupMarker(details.lat, details.lng);
+                            else geocodeAndMove(pickupInput.value, 'pickup');
+                        });
+                    }
+                }, 300); // Wait for click events to finish
+            });
+        }
+    });
+
+    function attachAutocomplete(el) {
+        const resultsId = el.id.replace('drop_address_', 'results_drop_');
+        const dropIdx = el.id.replace('drop_address_', '');
+
+        if (!el.dataset.autocompleteInit) {
+            initAutocomplete(el.id, resultsId, (placeId, name, lat, lng) => {
+                if (lat && lng) {
+                    // Update hidden fields directly
+                    const latEl = document.getElementById(`drop_lat_${dropIdx}`);
+                    const lngEl = document.getElementById(`drop_lng_${dropIdx}`);
+                    if (latEl) latEl.value = lat;
+                    if (lngEl) lngEl.value = lng;
+
+                    // Plot on map
+                    const m = L.marker([lat, lng]).addTo(map).bindPopup(`Drop: ${name}`).openPopup();
+                    dropMarkers.push(m);
+                    map.setView([lat, lng], 14);
+                } else {
+                    geocodeAndMove(name, dropIdx);
+                }
+            });
+
+            // Auto-geocode on blur if no coordinates were selected
+            el.addEventListener('blur', () => {
+                setTimeout(() => {
+                    const latEl = document.getElementById(`drop_lat_${dropIdx}`);
+                    const latVal = latEl ? latEl.value : "0";
+                    if ((!latVal || latVal === "0" || latVal === 0) && el.value.length > 5) {
+                        console.log(`Auto-geocoding drop ${dropIdx} on blur...`);
+                        window.autocompleteApiInstance.geocodeAddress(el.value).then(details => {
+                            if (details) {
+                                if (latEl) latEl.value = details.lat;
+                                const lngEl = document.getElementById(`drop_lng_${dropIdx}`);
+                                if (lngEl) lngEl.value = details.lng;
+                                const m = L.marker([details.lat, details.lng]).addTo(map).bindPopup(`Drop: ${el.value}`).openPopup();
+                                dropMarkers.push(m);
+                            } else {
+                                geocodeAndMove(el.value, dropIdx);
+                            }
+                        });
+                    }
+                }, 300);
+            });
+
+            el.dataset.autocompleteInit = "true";
+        }
+    }
+
+    async function geocodeAndMove(name, type) {
+        let details = null;
+        try {
+            details = await window.autocompleteApiInstance.geocodeAddress(name);
+        } catch (e) {
+            console.warn("RapidAPI Geocode fail, falling back to Nominatim", e);
+        }
+
+        if (details) {
+            const lat = details.lat;
+            const lon = details.lng;
+            if (type === 'pickup') {
+                updatePickupMarker(lat, lon);
+            } else {
+                const latEl = document.getElementById(`drop_lat_${type}`);
+                const lngEl = document.getElementById(`drop_lng_${type}`);
+                if (latEl) latEl.value = lat;
+                if (lngEl) lngEl.value = lon;
+                const m = L.marker([lat, lon]).addTo(map).bindPopup(`Drop: ${name}`).openPopup();
+                dropMarkers.push(m);
+                map.setView([lat, lon], 14);
+            }
+            return;
+        }
+
+        // Final fallback to Nominatim
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(name)}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+
+                    if (type === 'pickup') {
+                        updatePickupMarker(lat, lon);
+                    } else {
+                        // Store coordinates in hidden fields
+                        const latEl = document.getElementById(`drop_lat_${type}`);
+                        const lngEl = document.getElementById(`drop_lng_${type}`);
+                        if (latEl) latEl.value = lat;
+                        if (lngEl) lngEl.value = lon;
+
+                        const m = L.marker([lat, lon]).addTo(map).bindPopup(`Drop Address: ${name}`).openPopup();
+                        dropMarkers.push(m);
+                        map.setView([lat, lon], 14);
+                    }
+                }
+            })
+            .catch(err => console.error('Geocoding error:', err));
+    }
+
+    document.querySelector('[name=item_weight]').addEventListener('input', calcPrice);
+    calcPrice();
+
+    // Payment method styling
+    document.querySelectorAll('.pm-btn').forEach(lbl => {
+        lbl.addEventListener('click', () => {
+            document.querySelectorAll('.pm-btn').forEach(l => l.classList.remove('active-pm', 'btn-primary'));
+            lbl.classList.add('active-pm', 'btn-primary');
+        });
+    });
+</script>
+<style>
+    .active-pm {
+        background: var(--primary) !important;
+        color: white !important;
+        border-color: var(--primary) !important;
+    }
+</style>
+{% endblock %}

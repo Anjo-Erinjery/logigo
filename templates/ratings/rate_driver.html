@@ -1,0 +1,35 @@
+{% extends "base/base.html" %}
+{% block title %}Rate Driver — Deliver{% endblock %}
+{% block navbar %}{% include "base/sidebar_customer.html" %}{% endblock %}
+{% block content %}
+<div class="topbar"><span class="topbar-title"><i class="fa fa-star me-2" style="color:var(--accent)"></i>Rate Your
+        Delivery</span></div>
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <div class="dash-card text-center">
+                <div style="font-size:3rem;margin-bottom:1rem;">⭐</div>
+                <h5 class="fw-bold mb-1">How was your delivery?</h5>
+                <p class="text-muted small mb-4">{{ booking.booking_id }} — Driver: {% if booking.driver %}{{ booking.driver.get_full_name }}{% else %}N/A{% endif %}</p>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-center gap-2 mb-4">
+                        {% for val, lbl in form.fields.stars.choices %}
+                        <div>
+                            <input type="radio" name="stars" id="star{{ val }}" value="{{ val }}" class="d-none" {% if forloop.first %}checked{% endif %}>
+                            <label for="star{{ val }}" class="star-label">⭐</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-4 text-start">
+                        <label class="form-label">Your Review</label>
+                        {{ form.review_text }}
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100"><i class="fa fa-check me-2"></i>Submit
+                        Review</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

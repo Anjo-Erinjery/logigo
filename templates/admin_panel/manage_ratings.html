@@ -1,0 +1,43 @@
+{% extends "base/base.html" %}
+{% block title %}Ratings — Admin{% endblock %}
+{% block navbar %}{% include "base/sidebar_admin.html" %}{% endblock %}
+{% block content %}
+<div class="topbar"><span class="topbar-title"><i class="fa fa-star me-2" style="color:var(--accent)"></i>Ratings &
+        Reviews</span></div>
+<div class="container-fluid py-4">
+    <div class="deliver-table">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Booking</th>
+                    <th>Customer</th>
+                    <th>Driver</th>
+                    <th>Stars</th>
+                    <th>Review</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in ratings %}
+                <tr>
+                    <td><span style="color:var(--primary-light)">{{ r.booking.booking_id }}</span></td>
+                    <td>{{ r.customer.get_full_name }}</td>
+                    <td>{{ r.driver.get_full_name }}</td>
+                    <td>
+                        <span style="color:var(--accent)">
+                            {% for i in "12345" %}
+                            {% if forloop.counter <= r.stars %}⭐{% endif %} {% endfor %} </span>
+                    </td>
+                    <td class="small">{{ r.review_text|default:"—"|truncatechars:50 }}</td>
+                    <td class="small text-muted">{{ r.created_at|date:"d M Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">No reviews yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

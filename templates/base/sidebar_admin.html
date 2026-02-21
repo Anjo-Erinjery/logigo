@@ -1,0 +1,35 @@
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo d-flex align-items-center justify-content-between px-3">
+        <div class="d-flex align-items-center gap-2">
+            <div class="sidebar-icon-container">
+                <span class="material-icons-outlined text-white">settings</span>
+            </div>
+            <span class="text-gradient">Admin</span>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
+            <span class="material-icons-outlined">dark_mode</span>
+        </button>
+    </div>
+    <ul class="sidebar-nav list-unstyled">
+        <li class="nav-item"><a href="{% url 'admin_dashboard' %}"
+                class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <i class="fa fa-chart-line"></i> Dashboard
+            </a></li>
+        <li class="nav-item"><a href="{% url 'admin_manage_users' %}"><i class="fa fa-users"></i> Manage Users</a></li>
+        <li class="nav-item"><a href="{% url 'admin_manage_drivers' %}"><i class="fa fa-id-badge"></i> Manage
+                Drivers</a></li>
+        <li class="nav-item"><a href="{% url 'admin_manage_orders' %}"><i class="fa fa-box"></i> Manage Orders</a></li>
+        <li class="nav-item"><a href="{% url 'admin_manage_payments' %}"><i class="fa fa-credit-card"></i> Payments</a>
+        </li>
+        <li class="nav-item"><a href="{% url 'admin_manage_tickets' %}"><i class="fa fa-headset"></i> Tickets</a></li>
+        <li class="nav-item"><a href="{% url 'admin_live_tracking' %}"><i class="fa fa-satellite"></i> Live Tracking</a>
+        </li>
+        <li class="nav-item"><a href="{% url 'admin_manage_ratings' %}"><i class="fa fa-star"></i> Ratings</a></li>
+        <li class="nav-item"><a href="/django-admin/" target="_blank"><i class="fa fa-cog"></i> Django Admin</a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm w-100">
+            <i class="fa fa-sign-out-alt me-1"></i>Logout
+        </a>
+    </div>
+</nav>

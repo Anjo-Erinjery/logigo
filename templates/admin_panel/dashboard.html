@@ -1,0 +1,140 @@
+{% extends "base/base.html" %}
+{% block title %}Admin Dashboard — Deliver{% endblock %}
+{% block navbar %}{% include "base/sidebar_admin.html" %}{% endblock %}
+{% block content %}
+<div class="topbar">
+    <span class="topbar-title"><i class="fa fa-chart-line me-2" style="color:var(--primary)"></i><span
+            class="text-gradient">Admin Dashboard</span></span>
+    <div class="topbar-user">
+        <div class="avatar-sm glass-card">A</div>
+        <span class="small fw-bold">Admin</span>
+        <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-danger ms-2"><i class="fa fa-sign-out-alt"></i></a>
+    </div>
+</div>
+<div class="container-fluid py-4">
+    <!-- KPI Row 1 -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-2 col-6">
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="fa fa-users"></i></div>
+                <div>
+                    <div class="stat-value">{{ total_users }}</div>
+                    <div class="stat-label">Customers</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fa fa-id-badge"></i></div>
+                <div>
+                    <div class="stat-value">{{ total_drivers }}</div>
+                    <div class="stat-label">Drivers</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fa fa-circle"></i></div>
+                <div>
+                    <div class="stat-value">{{ active_drivers }}</div>
+                    <div class="stat-label">Online Drivers</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="stat-card">
+                <div class="stat-icon amber"><i class="fa fa-box"></i></div>
+                <div>
+                    <div class="stat-value">{{ active_bookings }}</div>
+                    <div class="stat-label">Active Orders</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="stat-card">
+                <div class="stat-icon red"><i class="fa fa-headset"></i></div>
+                <div>
+                    <div class="stat-value">{{ open_tickets }}</div>
+                    <div class="stat-label">Open Tickets</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fa fa-rupee-sign"></i></div>
+                <div>
+                    <div class="stat-value">₹{{ total_revenue|floatformat:0 }}</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue + Today stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="dash-card text-center">
+                <div style="font-size:2.5rem;font-weight:800;color:var(--success)">₹{{ today_revenue|floatformat:0 }}
+                </div>
+                <div class="text-muted small mt-1">Today's Revenue</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="dash-card text-center">
+                <div style="font-size:2.5rem;font-weight:800;color:var(--info)">{{ today_bookings }}</div>
+                <div class="text-muted small mt-1">Today's Bookings</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="dash-card text-center">
+                <div style="font-size:2.5rem;font-weight:800;color:var(--accent)">{{ pending_drivers }}</div>
+                <div class="text-muted small mt-1">Pending Driver Approvals</div>
+                {% if pending_drivers > 0 %}
+                <a href="{% url 'admin_manage_drivers' %}" class="btn btn-sm btn-warning mt-2">Review Now</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="dash-card">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h6 class="mb-0 fw-bold">Recent Orders</h6>
+            <a href="{% url 'admin_manage_orders' %}" class="btn btn-sm btn-outline-primary">View All</a>
+        </div>
+        <div class="deliver-table">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Customer</th>
+                        <th>Driver</th>
+                        <th>Drops</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in recent_bookings %}
+                    <tr>
+                        <td><span style="color:var(--primary-light)">{{ b.booking_id }}</span></td>
+                        <td>{{ b.customer.get_full_name }}</td>
+                        <td>{% if b.driver %}{{ b.driver.get_full_name }}{% else %}<span
+                                class="text-muted">Unassigned</span>{% endif %}</td>
+                        <td>{{ b.get_drop_count }}</td>
+                        <td>₹{{ b.total_price }}</td>
+                        <td><span class="status-badge status-{{ b.status }}">{{ b.get_status_display }}</span></td>
+                        <td class="small text-muted">{{ b.created_at|date:"d M, H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-3">No orders yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

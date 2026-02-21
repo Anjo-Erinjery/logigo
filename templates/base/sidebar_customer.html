@@ -1,0 +1,40 @@
+{% load static %}
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo d-flex align-items-center justify-content-between px-3">
+        <div class="d-flex align-items-center gap-2">
+            <div class="sidebar-icon-container">
+                <span class="material-icons-outlined text-white">local_shipping</span>
+            </div>
+            <span class="text-gradient">Deliver</span>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
+            <span class="material-icons-outlined">dark_mode</span>
+        </button>
+    </div>
+    <ul class="sidebar-nav list-unstyled">
+        <li class="nav-item"><a href="{% url 'customer_dashboard' %}"
+                class="{% if request.resolver_match.url_name == 'customer_dashboard' %}active{% endif %}">
+                <i class="fa fa-home"></i> Dashboard
+            </a></li>
+        <li class="nav-item"><a href="{% url 'customer_new_booking' %}"
+                class="{% if request.resolver_match.url_name == 'customer_new_booking' %}active{% endif %}">
+                <i class="fa fa-plus-circle"></i> New Booking
+            </a></li>
+        <li class="nav-item"><a href="{% url 'customer_order_history' %}"
+                class="{% if request.resolver_match.url_name == 'customer_order_history' %}active{% endif %}">
+                <i class="fa fa-history"></i> Order History
+            </a></li>
+        <li class="nav-item"><a href="{% url 'ticket_list' %}"
+                class="{% if 'ticket' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fa fa-headset"></i> Support Tickets
+            </a></li>
+        <li class="nav-item"><a href="{% url 'customer_profile' %}">
+                <i class="fa fa-user-circle"></i> Profile
+            </a></li>
+    </ul>
+    <div class="sidebar-footer">
+        <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm w-100">
+            <i class="fa fa-sign-out-alt me-1"></i>Logout
+        </a>
+    </div>
+</nav>

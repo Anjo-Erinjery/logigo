@@ -1,0 +1,73 @@
+﻿{% extends "base/base.html" %}
+{% block title %}Manage Drivers — Admin{% endblock %}
+{% block navbar %}{% include "base/sidebar_admin.html" %}{% endblock %}
+{% block content %}
+<div class="topbar">
+    <span class="topbar-title"><i class="fa fa-id-badge me-2" style="color:var(--primary-light)"></i>Manage
+        Drivers</span>
+</div>
+<div class="container-fluid py-4">
+    <div class="deliver-table">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Vehicle</th>
+                    <th>Docs Verified</th>
+                    <th>Available</th>
+                    <th>Rating</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in drivers %}
+                <tr>
+                    <td>{{ d.get_full_name }}</td>
+                    <td>{{ d.email }}</td>
+                    <td>
+                        {% if d.driver_profile %}
+                        {{ d.driver_profile.vehicle_type|upper }} {{ d.driver_profile.vehicle_number }}
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if d.driver_profile.is_documents_verified %}
+                        <span class="text-success fw-bold">✓ Verified</span>
+                        {% else %}
+                        <span class="text-warning">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if d.driver_profile.is_available %}
+                        <span class="badge bg-success">Online</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Offline</span>
+                        {% endif %}
+                    </td>
+                    <td>⭐ {{ d.driver_profile.rating_avg|default:"0.0" }}</td>
+                    <td>
+                        {% if d.driver_profile and not d.driver_profile.is_documents_verified %}
+                        <a href="{% url 'admin_verify_driver' d.driver_profile.pk %}"
+                            class="btn btn-sm btn-success me-1">
+                            <i class="fa fa-check"></i> Verify
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'admin_toggle_user' d.pk %}"
+                            class="btn btn-sm {% if d.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+                            {% if d.is_active %}<i class="fa fa-ban"></i> Deactivate{% else %}<i
+                                class="fa fa-check"></i> Activate{% endif %}
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">No drivers registered.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

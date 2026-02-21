@@ -1,0 +1,42 @@
+{% extends "base/base.html" %}
+{% block title %}Profile — Driver{% endblock %}
+{% block navbar %}{% include "base/sidebar_driver.html" %}{% endblock %}
+{% block content %}
+<div class="topbar"><span class="topbar-title"><i class="fa fa-id-card me-2"></i>Driver Profile</span></div>
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="dash-card mb-4">
+                <h6 class="fw-bold mb-3">Personal Information</h6>
+                <form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
+                    <div class="mb-3"><label class="form-label">First Name</label>{{ form.first_name }}</div>
+                    <div class="mb-3"><label class="form-label">Last Name</label>{{ form.last_name }}</div>
+                    <div class="mb-3"><label class="form-label">Phone</label>{{ form.phone_number }}</div>
+                    <div class="mb-3"><label class="form-label">Address</label>{{ form.address }}</div>
+                    <div class="mb-4"><label class="form-label">Profile Photo</label>{{ form.profile_photo }}</div>
+                    <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+                </form>
+            </div>
+            <div class="dash-card">
+                <h6 class="fw-bold mb-3">Document Status</h6>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Aadhaar</span>
+                    <span class="text-muted">{{ profile.aadhaar_number|default:"Not extracted" }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>License</span>
+                    <span class="text-muted">{{ profile.license_number|default:"Not extracted" }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Verification Status</span>
+                    {% if profile.is_documents_verified %}
+                    <span class="text-success fw-bold">✓ Verified</span>
+                    {% else %}
+                    <span class="text-warning">Pending Admin Review</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
